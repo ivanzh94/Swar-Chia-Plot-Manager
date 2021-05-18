@@ -98,7 +98,8 @@ install_dependencies(){
     elif check_sys packageManager apt;then
         apt-get install python3.8 git
         ln -s /usr/bin/python3.8 /usr/bin/python3
-        PythonBin="/usr/bin/python3"
+    fi
+    PythonBin="/usr/bin/python3"
 }
 
 install_chia_block(){
