@@ -155,6 +155,7 @@ install_swar(){
 
 install_cmake(){
     current_pwd=`pwd`
+    [ -d "/usr/local/cmake" ] && return 0
     [ -d "/tmp/cmake" ] && rm -rf /tmp/cmake
     mkdir -p /tmp/cmake
     cd /tmp/cmake
