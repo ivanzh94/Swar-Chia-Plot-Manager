@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PWD=`pwd`
+
 # Get version
 function GetVersion(){
     if [[ -s /etc/redhat-release ]];then
@@ -88,26 +90,55 @@ install_dependencies(){
 
     clear
     if check_sys packageManager yum;then
+
+        yum_depends=(
+            make automake gcc gcc-c++ kernel-devel openssl-devel git
+        )
+
+        for depend in ${yum_depends[@]}; do
+            yum install -y ${depend}
+        done
+
         if CentosVersion 8;then
-            yum -y install python38 git
+            yum -y install python38 python38-devel
             ln -s /usr/bin/python3.8 /usr/bin/python3
         else
-            yum -y install python3 git
+            yum -y install python3 python3-devel
         fi
 
+        install_cmake
+
     elif check_sys packageManager apt;then
-        apt-get install python3.8 git
+
+        #apt_depends=(
+        #    make automake gcc gcc-c++ build-essential libssl-dev git
+        #)
+
+        apt_depends=(
+            git cmake
+        )
+
+        for depend in ${apt_depends[@]}; do
+            apt install -y ${depend}
+        done
+
+        apt-get install python3.8 python3.8-dev
         ln -s /usr/bin/python3.8 /usr/bin/python3
+
     fi
     PythonBin="/usr/bin/python3"
 }
 
 install_chia_block(){
+    cd ${PWD}
     echo "Starting install chia-blockchain"
     git submodule update --init chia-blockchain
     cd chia-blockchain
+    sed -i 's/"chiapos/#&/' setup.py
     /bin/bash install.sh
+
     source ./activate
+    install_chiapos
     chia init
     deactivate
     cd ..
@@ -116,13 +147,39 @@ install_chia_block(){
 
 
 install_swar(){
+    cd ${PWD}
     echo "Starting install swar"
     $PythonBin -m venv venv
-    ln -s venv/bin/activate .
+    ln -s ${PWD}/venv/bin/activate ./
     source ./activate
     pip install -r requirements.txt
     deactivate
     echo "done."
+}
+
+install_cmake(){
+    current_pwd=`pwd`
+    [ -d "/tmp/cmake" ] && rm -rf /tmp/cmake
+    mkdir -p /tmp/cmake
+    cd /tmp/cmake
+    wget https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2.tar.gz
+    tar -zxvf cmake-3.20.2.tar.gz
+    cd cmake-3.20.2
+    ./bootstrap --prefix=/usr/local/cmake
+    gmake && gmake install
+    ln -s /usr/local/cmake/bin/cmake /usr/bin/cmake
+    cd ${current_pwd}
+}
+
+install_chiapos() {
+    current_pwd=`pwd`
+    [ -d "/tmp/chiapos" ] && rm -rf /tmp/chiapos
+    mkdir /tmp/chiapos
+    cd /tmp/chiapos
+    git clone https://github.com/pechy/chiapos.git
+    cd chiapos
+    python setup.py install
+    cd ${current_pwd}
 }
 
 install_dependencies
