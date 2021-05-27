@@ -92,7 +92,7 @@ install_dependencies(){
     if check_sys packageManager yum;then
 
         yum_depends=(
-            make automake gcc gcc-c++ kernel-devel openssl-devel git
+            make automake gcc gcc-c++ kernel-devel openssl-devel git wget tar
         )
 
         for depend in ${yum_depends[@]}; do
@@ -111,7 +111,7 @@ install_dependencies(){
     elif check_sys packageManager apt;then
 
         apt_depends=(
-            make automake gcc gcc-c++ build-essential libssl-dev git cmake
+            make automake gcc gcc-c++ build-essential libssl-dev git cmake wget tar
         )
 
         for depend in ${apt_depends[@]}; do
