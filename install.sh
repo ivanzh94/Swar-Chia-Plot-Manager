@@ -182,6 +182,12 @@ install_chiapos() {
     cd ${current_pwd}
 }
 
+clean_tmps() {
+    [ -d "/tmp/cmake" ] && rm -rf /tmp/cmake
+    [ -d "/tmp/chiapos" ] && rm -rf /tmp/chiapos
+}
+
 install_dependencies
 install_chia_block
 install_swar
+clean_tmps
