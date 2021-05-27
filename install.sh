@@ -164,7 +164,7 @@ install_cmake(){
     cd cmake-3.20.2
     ./bootstrap --prefix=/usr/local/cmake
     gmake && gmake install
-    ln -s /usr/local/cmake/bin/cmake /usr/bin/cmake
+    ln -s -f /usr/local/cmake/bin/cmake /usr/bin/cmake
     cd ${current_pwd}
 }
 
