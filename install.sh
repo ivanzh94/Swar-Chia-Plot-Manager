@@ -110,12 +110,8 @@ install_dependencies(){
 
     elif check_sys packageManager apt;then
 
-        #apt_depends=(
-        #    make automake gcc gcc-c++ build-essential libssl-dev git
-        #)
-
         apt_depends=(
-            git cmake
+            make automake gcc gcc-c++ build-essential libssl-dev git cmake
         )
 
         for depend in ${apt_depends[@]}; do
