@@ -92,7 +92,7 @@ install_dependencies(){
     if check_sys packageManager yum;then
 
         yum_depends=(
-            make automake gcc gcc-c++ kernel-devel openssl-devel git wget tar
+            make automake  kernel-devel openssl-devel git wget tar
         )
 
         for depend in ${yum_depends[@]}; do
@@ -100,13 +100,15 @@ install_dependencies(){
         done
 
         if CentosVersion 8;then
-            yum -y install python38 python38-devel
+            yum -y install python38 python38-devel gcc gcc-c++
             ln -s /usr/bin/python3.8 /usr/bin/python3
+            install_cmake
         else
-            yum -y install python3 python3-devel
+            install_devtoolset-8-gcc-g++
+            #yum -y install python3 python3-devel
+            install_cmake3.14.5
+            install_python38
         fi
-
-        install_cmake
 
     elif check_sys packageManager apt;then
 
@@ -122,7 +124,7 @@ install_dependencies(){
         ln -s /usr/bin/python3.8 /usr/bin/python3
 
     fi
-    PythonBin="/usr/bin/python3"
+    PythonBin="/usr/bin/python3.8"
 }
 
 install_chia_block(){
@@ -168,6 +170,30 @@ install_cmake(){
     cd ${current_pwd}
 }
 
+install_cmake3.14.5() {
+    current_pwd=`pwd`
+    [ -d "/usr/local/cmake" ] && return 0
+    [ -d "/tmp/cmake" ] && rm -rf /tmp/cmake
+    mkdir -p /tmp/cmake
+    cd /tmp/cmake
+    https://cmake.org/files/v3.14/cmake-3.14.5.tar.gz
+    tar -zxvf cmake-3.14.5.tar.gz
+    cd cmake-3.14.5
+    ./bootstrap --prefix=/usr/local/cmake
+    gmake && gmake install
+    ln -s -f /usr/local/cmake/bin/cmake /usr/bin/cmake
+    cd ${current_pwd}
+}
+
+install_devtoolset-8-gcc-g++() {
+    yum -y install centos-release-scl
+    yum -y install devtoolset-8-gcc*
+    [ -f /usr/bin/gcc ] && mv /usr/bin/gcc /usr/bin/gcc-4.8
+    [ -f /usr/bin/g++ ] && mv /usr/bin/g++ /usr/bin/g++-4.8
+    ln -s /opt/rh/devtoolset-8/root/bin/gcc /usr/bin/gcc
+    ln -s /opt/rh/devtoolset-8/root/bin/g++ /usr/bin/g++
+}
+
 install_chiapos() {
     current_pwd=`pwd`
     [ -d "/tmp/chiapos" ] && rm -rf /tmp/chiapos
@@ -179,9 +205,24 @@ install_chiapos() {
     cd ${current_pwd}
 }
 
+install_python38() {
+    current_pwd=`pwd`
+    [ -d "/tmp/python3.8" ] && rm -rf /tmp/python3.8
+    mkdir /tmp/python3.8
+    cd /tmp/python3.8
+    wget https://www.python.org/ftp/python/3.8.8/Python-3.8.8.tgz
+    tar -zxvf Python-3.8.8.tgz
+    cd Python-3.8.8
+    ./configure --prefix=/usr/local/python3.8
+    make && make install
+    ln -s -f /usr/local/python3.8/bin/python3.8 /usr/bin/python3.8
+    cd ${current_pwd}
+}
+
 clean_tmps() {
     [ -d "/tmp/cmake" ] && rm -rf /tmp/cmake
     [ -d "/tmp/chiapos" ] && rm -rf /tmp/chiapos
+    [ -d "/tmp/python3.8" ] && rm -rf /tmp/python3.8
 }
 
 install_dependencies
