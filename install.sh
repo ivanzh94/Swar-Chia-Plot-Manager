@@ -151,6 +151,7 @@ install_swar(){
     ln -s ${PWD}/venv/bin/activate ./
     source ./activate
     pip install -r requirements.txt
+    pip install -r requirements-notification.txt
     deactivate
     echo "done."
 }
@@ -192,6 +193,7 @@ install_devtoolset-8-gcc-g++() {
     [ -f /usr/bin/g++ ] && mv /usr/bin/g++ /usr/bin/g++-4.8
     ln -s /opt/rh/devtoolset-8/root/bin/gcc /usr/bin/gcc
     ln -s /opt/rh/devtoolset-8/root/bin/g++ /usr/bin/g++
+    source /opt/rh/devtoolset-8/enable
 }
 
 install_chiapos() {
